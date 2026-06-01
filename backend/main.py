@@ -101,18 +101,24 @@ sessions: Dict[str, Dict] = {}
 
 @app.on_event("startup")
 async def startup_event():
-    """Pre-load models on startup for faster first request."""
+    """Pre-load models on startup in the background to avoid blocking port binding."""
     logger.info(f"Starting {settings.APP_NAME} v{settings.APP_VERSION}")
-    try:
-        registry = get_model_registry()
-        # Trigger lazy loading
-        _ = registry.embedding_model
-        logger.info("Embedding model pre-loaded")
-        if settings.RERANKER_ENABLED:
-            _ = registry.reranker_model
-            logger.info("Reranker model pre-loaded")
-    except Exception as e:
-        logger.warning(f"Model pre-loading failed (will load on first request): {e}")
+    
+    async def load_models_background():
+        try:
+            # Let the server bind and start listening first
+            await asyncio.sleep(1)
+            registry = get_model_registry()
+            # Trigger lazy loading
+            _ = registry.embedding_model
+            logger.info("Embedding model pre-loaded in background")
+            if settings.RERANKER_ENABLED:
+                _ = registry.reranker_model
+                logger.info("Reranker model pre-loaded in background")
+        except Exception as e:
+            logger.warning(f"Model pre-loading in background failed (will load on first request): {e}")
+
+    asyncio.create_task(load_models_background())
 
 
 # ──────────────────────────────────────────────
