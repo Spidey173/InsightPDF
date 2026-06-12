@@ -1,3 +1,12 @@
+---
+title: InsightPDF
+emoji: 📄
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+---
+
 # 📄 InsightPDF: Advanced RAG-Powered Document Q&A Platform
 
 A high-performance, full-stack **Document Q&A and Analytics system** powered by **Retrieval-Augmented Generation (RAG)**. InsightPDF allows users to upload multi-page PDFs, automatically extract semantic insights, and conduct interactive Q&A grounded entirely in the uploaded document content with absolute accuracy.
