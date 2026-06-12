@@ -15,10 +15,10 @@ class Settings:
     """Application settings loaded from environment variables."""
 
     # === API Keys ===
-    GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "") or os.getenv("GOOGLE", "") or os.getenv("google", "")
-    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
-    OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
-    GITHUB_TOKEN: str = os.getenv("GITHUB_TOKEN", "") or os.getenv("GITHUB_API_KEY", "") or os.getenv("GITHUB", "") or os.getenv("github", "")
+    GOOGLE_API_KEY: str = (os.getenv("GOOGLE_API_KEY", "") or os.getenv("GOOGLE", "") or os.getenv("google", "")).strip()
+    GROQ_API_KEY: str = (os.getenv("GROQ_API_KEY", "")).strip()
+    OPENROUTER_API_KEY: str = (os.getenv("OPENROUTER_API_KEY", "")).strip()
+    GITHUB_TOKEN: str = (os.getenv("GITHUB_TOKEN", "") or os.getenv("GITHUB_API_KEY", "") or os.getenv("GITHUB", "") or os.getenv("github", "")).strip()
 
     # === LLM Configuration ===
     _has_github: bool = bool(os.getenv("GITHUB_TOKEN") or os.getenv("GITHUB") or os.getenv("github") or os.getenv("GITHUB_API_KEY"))
