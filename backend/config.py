@@ -21,7 +21,9 @@ class Settings:
     GITHUB_TOKEN: str = os.getenv("GITHUB_TOKEN", "") or os.getenv("GITHUB_API_KEY", "") or os.getenv("GITHUB", "") or os.getenv("github", "")
 
     # === LLM Configuration ===
-    LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "google")
+    _has_github: bool = bool(os.getenv("GITHUB_TOKEN") or os.getenv("GITHUB") or os.getenv("github") or os.getenv("GITHUB_API_KEY"))
+    _has_google: bool = bool(os.getenv("GOOGLE_API_KEY") or os.getenv("GOOGLE") or os.getenv("google"))
+    LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "github" if (_has_github and not _has_google) else "google")
     LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.1"))
     LLM_MAX_TOKENS: int = int(os.getenv("LLM_MAX_TOKENS", "1500"))
 
