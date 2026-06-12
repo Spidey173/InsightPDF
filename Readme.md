@@ -7,8 +7,8 @@ A high-performance, full-stack **Document Q&A and Analytics system** powered by 
 ## ⚡ Key Highlights
 * **Zero-Hallucination Verification**: Engineered a context-grounding module that verifies LLM answers against raw source snippets before serving, ensuring complete factual alignment.
 * **Two-Stage Retrieval Pipeline**: Integrated a **Cross-Encoder Reranker** on top of vector similarity search to significantly improve retrieval quality and relevance.
-* **Modular Multi-LLM Adapter**: Designed a hot-swappable AI gateway supporting **Google Gemini (default)**, **Groq**, and **OpenRouter** through a unified backend schema.
-* **Modern Developer Experience**: Rebuilt the frontend into a responsive, type-safe dashboard using **Next.js 14**, **React**, and **TypeScript**.
+* **Modular Multi-LLM Adapter**: Designed a hot-swappable AI gateway supporting **Google Gemini (default)**, **GitHub Models**, **Groq**, and **OpenRouter** through a unified backend schema.
+* **Modern Developer Experience**: Rebuilt the frontend into a responsive, type-safe dashboard using **Next.js 16**, **React 19**, and **TypeScript**.
 
 ---
 
@@ -22,10 +22,10 @@ A high-performance, full-stack **Document Q&A and Analytics system** powered by 
 ---
 
 ## 🛠️ Tech Stack
-* **Frontend**: Next.js 14, React, TypeScript, CSS Modules (Sleek Glassmorphic UI)
+* **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS v4 (Sleek Glassmorphic UI)
 * **Backend**: FastAPI (Python), PyPDF, Pydantic, Uvicorn
 * **Search & Embedding**: FAISS (Facebook AI Similarity Search), Sentence-Transformers (`all-MiniLM-L6-v2`)
-* **AI/LLM Integrations**: Google Gemini Pro (default), Groq API, OpenRouter API
+* **AI/LLM Integrations**: Google Gemini Pro (default), GitHub Models, Groq API, OpenRouter API
 
 ---
 
