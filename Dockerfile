@@ -29,8 +29,8 @@ COPY --from=frontend-builder /app/frontend/out ./frontend-next/out
 WORKDIR /app/backend
 
 # Create upload dir and expose port
-RUN mkdir -p uploads
-ENV PORT=8000
-EXPOSE 8000
+RUN mkdir -p uploads && chmod 777 uploads
+ENV PORT=7860
+EXPOSE 7860
 
 CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT}"]
