@@ -123,20 +123,30 @@ export const useAppStore = create<AppState>((set) => ({
   docViewStates: {},
   leftSidebarCollapsed: false,
   rightSidebarCollapsed: false,
-  leftSidebarWidth: 260,
-  rightSidebarWidth: 360,
+  leftSidebarWidth: 240,
+  rightSidebarWidth: 450,
   activePanelTab: "chat",
 
   // Actions
   setSession: (sessionId, files) =>
-    set({
-      sessionId,
-      files,
-      messages: [],
-      insights: null,
-      selectedFileNames: files.map((f) => f.name),
-      activeDocumentName: files.length > 0 ? files[0].name : null,
-      docViewStates: {},
+    set((state) => {
+      const existingNames = state.files.map((f) => f.name);
+      const newFile = files.find((f) => !existingNames.includes(f.name));
+
+      const activeDoc = newFile
+        ? newFile.name
+        : (state.activeDocumentName && files.some((f) => f.name === state.activeDocumentName))
+          ? state.activeDocumentName
+          : (files.length > 0 ? files[0].name : null);
+
+      return {
+        sessionId,
+        files,
+        messages: state.sessionId === sessionId ? state.messages : [],
+        insights: state.sessionId === sessionId ? state.insights : null,
+        selectedFileNames: files.map((f) => f.name),
+        activeDocumentName: activeDoc,
+      };
     }),
 
   clearSession: () =>

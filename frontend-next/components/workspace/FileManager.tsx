@@ -194,45 +194,6 @@ export default function FileManager() {
             })}
           </div>
         </div>
-
-        {/* Collections */}
-        <div>
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider px-2 mb-2 block">
-            Collections
-          </span>
-          <div className="space-y-1 px-1">
-            {["Financial Statements", "Legal & Contracts", "Technical Notes"].map((col) => (
-              <div
-                key={col}
-                className="flex items-center justify-between p-2 rounded-lg text-xs text-text-secondary hover:text-text-primary hover:bg-white/[0.02] cursor-pointer"
-              >
-                <div className="flex items-center gap-2 truncate">
-                  <Archive className="w-3.5 h-3.5 text-text-muted" />
-                  <span className="truncate">{col}</span>
-                </div>
-                <ChevronRight className="w-3 h-3 text-text-muted" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent sessions */}
-        <div>
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider px-2 mb-2 block">
-            Recent Sessions
-          </span>
-          <div className="space-y-1 px-1">
-            {["Compliance Audit", "Product Roadmap Review"].map((sess) => (
-              <div
-                key={sess}
-                className="flex items-center gap-2 p-2 rounded-lg text-xs text-text-secondary hover:text-text-primary hover:bg-white/[0.02] cursor-pointer"
-              >
-                <History className="w-3.5 h-3.5 text-text-muted" />
-                <span className="truncate">{sess}</span>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

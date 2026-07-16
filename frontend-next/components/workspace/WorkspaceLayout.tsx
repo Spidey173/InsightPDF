@@ -13,6 +13,7 @@ export default function WorkspaceLayout() {
     rightSidebarCollapsed,
     leftSidebarWidth,
     rightSidebarWidth,
+    activeDocumentName,
     setLeftSidebarWidth,
     setRightSidebarWidth,
   } = useAppStore();
@@ -38,7 +39,7 @@ export default function WorkspaceLayout() {
 
         {/* Center Panel: Focus Mode PDF Viewer */}
         <div className="flex-1 h-full min-w-[320px] overflow-hidden flex flex-col bg-midnight-950">
-          <PDFViewer />
+          <PDFViewer key={activeDocumentName || "empty"} />
         </div>
 
         {/* Right sidebar: AI Workspace (Chat + Insights + Sources) */}
