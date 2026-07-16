@@ -115,7 +115,7 @@ export const useAppStore = create<AppState>((set) => ({
   currentPage: 1,
   totalPages: 0,
   highlightedCitation: null,
-  pdfScale: 1.5,
+  pdfScale: 1.0,
 
   // Workspace Context Defaults
   activeDocumentName: null,
@@ -257,7 +257,7 @@ export const useAppStore = create<AppState>((set) => ({
   setActiveDocument: (fileName) =>
     set((state) => {
       if (!fileName) return { activeDocumentName: null };
-      const docState = state.docViewStates[fileName] || { page: 1, scale: 1.5 };
+      const docState = state.docViewStates[fileName] || { page: 1, scale: 1.0 };
       return {
         activeDocumentName: fileName,
         currentPage: docState.page,
