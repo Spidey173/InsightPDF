@@ -124,7 +124,7 @@ export const useAppStore = create<AppState>((set) => ({
   leftSidebarCollapsed: false,
   rightSidebarCollapsed: false,
   leftSidebarWidth: 240,
-  rightSidebarWidth: 450,
+  rightSidebarWidth: 500,
   activePanelTab: "chat",
 
   // Actions

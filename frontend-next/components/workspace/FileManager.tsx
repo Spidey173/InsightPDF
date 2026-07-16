@@ -130,25 +130,10 @@ export default function FileManager() {
             <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
               Documents ({files.length})
             </span>
-            <div className="flex gap-2">
-              <button
-                onClick={selectAllFiles}
-                className="text-[9px] font-semibold text-accent-primary hover:underline"
-              >
-                Select all
-              </button>
-              <button
-                onClick={deselectAllFiles}
-                className="text-[9px] font-semibold text-text-muted hover:text-text-secondary"
-              >
-                Clear
-              </button>
-            </div>
           </div>
 
           <div className="space-y-1">
             {files.map((file) => {
-              const isSelected = selectedFileNames.includes(file.name);
               const isActive = activeDocumentName === file.name;
 
               return (
@@ -167,22 +152,7 @@ export default function FileManager() {
                     }`}
                   />
 
-                  {/* Checkbox context toggle */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFileSelection(file.name);
-                    }}
-                    className="text-text-muted hover:text-accent-primary transition-colors"
-                  >
-                    {isSelected ? (
-                      <CheckSquare className="w-4 h-4 text-accent-primary" />
-                    ) : (
-                      <Square className="w-4 h-4 text-white/20" />
-                    )}
-                  </button>
-
-                  <FileText className={`w-4 h-4 shrink-0 ${isSelected ? "text-accent-primary" : "text-text-muted"}`} />
+                  <FileText className={`w-4 h-4 shrink-0 ${isActive ? "text-accent-primary" : "text-text-muted"}`} />
 
                   <div className="flex-1 min-w-0">
                     <p className={`text-xs truncate ${isActive ? "text-text-primary font-semibold" : "text-text-secondary group-hover:text-text-primary"}`}>
