@@ -15,6 +15,7 @@ import {
 import { useAppStore, type ChatMessage } from "@/lib/store";
 import { streamQuery, type CitationInfo } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
+import VerificationDrawer from "./VerificationDrawer";
 
 // ──────────────────────────────────────
 // Chat Panel (main export)
@@ -291,61 +292,13 @@ function MessageBubble({
               <span className="inline-block w-0.5 h-4 bg-accent-primary animate-pulse ml-0.5 align-middle" />
             )}
 
-            {/* Citations */}
-            {message.citations && message.citations.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/6">
-                {message.citations.map((citation, idx) => (
-                  <button
-                    key={citation.citation_id || idx}
-                    onClick={() => onCitationClick(citation)}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md
-                      bg-accent-primary/10 hover:bg-accent-primary/20
-                      text-accent-secondary text-xs font-medium
-                      transition-all duration-200 hover:scale-105"
-                    title={`Go to Page ${citation.page}`}
-                  >
-                    <FileText className="w-3 h-3" />
-                    Page {citation.page}
-                  </button>
-                ))}
-              </div>
+            {/* Verification Drawer */}
+            {message.citations && message.citations.length > 0 && !message.isStreaming && (
+              <VerificationDrawer
+                citations={message.citations}
+                confidenceScore={message.confidence_score}
+              />
             )}
-
-            {/* Confidence Score */}
-            {message.confidence_score != null &&
-              message.confidence_score > 0 &&
-              !message.isStreaming && (
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/6">
-                  <ShieldCheck
-                    className={`w-3.5 h-3.5 ${
-                      message.confidence_score >= 0.8
-                        ? "text-success"
-                        : message.confidence_score >= 0.5
-                          ? "text-warning"
-                          : "text-danger"
-                    }`}
-                  />
-                  <div className="flex-1">
-                    <div className="confidence-meter">
-                      <div
-                        className={`confidence-fill ${
-                          message.confidence_score >= 0.8
-                            ? "bg-success"
-                            : message.confidence_score >= 0.5
-                              ? "bg-warning"
-                              : "bg-danger"
-                        }`}
-                        style={{
-                          width: `${message.confidence_score * 100}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-text-muted font-mono">
-                    {Math.round(message.confidence_score * 100)}% grounded
-                  </span>
-                </div>
-              )}
           </>
         )}
       </div>
@@ -370,7 +323,14 @@ function EmptyState({
   suggestedQuestions: string[];
   onQuestionClick: (q: string) => void;
 }) {
-  const displayQuestions = suggestedQuestions.slice(0, 6);
+  const displayQuestions = suggestedQuestions && suggestedQuestions.length > 0
+    ? suggestedQuestions.slice(0, 4)
+    : [
+        "Summarize this document",
+        "Compare the key findings",
+        "Extract the primary risks",
+        "Generate a project timeline",
+      ];
 
   return (
     <div className="flex flex-col items-center justify-center h-full py-8 px-4">
@@ -383,35 +343,33 @@ function EmptyState({
           <Sparkles className="w-7 h-7 text-accent-primary" />
         </div>
         <h3 className="text-lg font-semibold text-text-primary mb-1">
-          Ready to analyze
+          Ask anything
         </h3>
         <p className="text-sm text-text-muted mb-6 max-w-xs">
           Ask any question about your uploaded documents. I&apos;ll find the answer with source citations.
         </p>
       </motion.div>
 
-      {displayQuestions.length > 0 && (
-        <div className="w-full max-w-md space-y-2">
-          <p className="text-xs text-text-muted font-medium uppercase tracking-wider mb-2 text-center">
-            Suggested Questions
-          </p>
-          {displayQuestions.map((q, i) => (
-            <motion.button
-              key={i}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + i * 0.05 }}
-              onClick={() => onQuestionClick(q)}
-              className="w-full text-left p-3 rounded-xl glass hover:glass-active
-                text-sm text-text-secondary hover:text-text-primary
-                transition-all duration-200 group flex items-center gap-2"
-            >
-              <MessageSquare className="w-3.5 h-3.5 text-text-muted group-hover:text-accent-primary shrink-0 transition-colors" />
-              <span className="line-clamp-2">{q}</span>
-            </motion.button>
-          ))}
-        </div>
-      )}
+      <div className="w-full max-w-md space-y-2">
+        <p className="text-xs text-text-muted font-medium uppercase tracking-wider mb-2 text-center">
+          Suggested Queries
+        </p>
+        {displayQuestions.map((q, i) => (
+          <motion.button
+            key={i}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 + i * 0.05 }}
+            onClick={() => onQuestionClick(q)}
+            className="w-full text-left p-3 rounded-xl glass hover:glass-active
+              text-sm text-text-secondary hover:text-text-primary
+              transition-all duration-200 group flex items-center gap-2"
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-text-muted group-hover:text-accent-primary shrink-0 transition-colors" />
+            <span className="line-clamp-2">{q}</span>
+          </motion.button>
+        ))}
+      </div>
     </div>
   );
 }

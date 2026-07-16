@@ -17,26 +17,26 @@ import DropZone from "@/components/upload/DropZone";
 import PDFViewer from "@/components/pdf-viewer/PDFViewer";
 import ChatPanel from "@/components/chat/ChatPanel";
 import InsightsPanel from "@/components/insights/InsightsPanel";
+import WorkspaceLayout from "@/components/workspace/WorkspaceLayout";
 
 export default function Home() {
-  const { sessionId, files, activePanelTab, setActivePanelTab } = useAppStore();
+  const { sessionId } = useAppStore();
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      {/* Header */}
-      <Header />
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
-        <AnimatePresence mode="wait">
-          {!sessionId ? (
-            <LandingScreen key="landing" />
-          ) : (
-            <WorkspaceScreen key="workspace" />
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
+    <AnimatePresence mode="wait">
+      {!sessionId ? (
+        <div key="landing-layout" className="h-screen flex flex-col overflow-hidden bg-midnight-950 text-text-primary">
+          <Header />
+          <div className="flex-1 overflow-hidden">
+            <LandingScreen />
+          </div>
+        </div>
+      ) : (
+        <div key="workspace-layout" className="h-screen flex flex-col overflow-hidden bg-midnight-950 text-text-primary">
+          <WorkspaceLayout />
+        </div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -156,81 +156,4 @@ function LandingScreen() {
   );
 }
 
-// ──────────────────────────────────────
-// Workspace Screen (Split Pane)
-// ──────────────────────────────────────
 
-function WorkspaceScreen() {
-  const { activePanelTab, setActivePanelTab } = useAppStore();
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="h-full flex"
-    >
-      {/* Left Panel — PDF Viewer */}
-      <div className="hidden lg:flex w-1/2 border-r border-white/6 flex-col bg-midnight-950">
-        <PDFViewer />
-      </div>
-
-      {/* Right Panel — Chat + Insights */}
-      <div className="flex-1 flex flex-col bg-surface-primary/30 min-w-0">
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-1 px-4 py-2 border-b border-white/6 bg-surface-primary/60 backdrop-blur-sm">
-          <TabButton
-            active={activePanelTab === "chat"}
-            onClick={() => setActivePanelTab("chat")}
-            icon={<MessageSquare className="w-3.5 h-3.5" />}
-            label="Chat"
-          />
-          <TabButton
-            active={activePanelTab === "insights"}
-            onClick={() => setActivePanelTab("insights")}
-            icon={<Brain className="w-3.5 h-3.5" />}
-            label="Insights"
-          />
-        </div>
-
-        {/* Tab Content */}
-        <div className="flex-1 overflow-hidden">
-          {activePanelTab === "chat" ? <ChatPanel /> : <InsightsPanel />}
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-// ──────────────────────────────────────
-// Tab Button
-// ──────────────────────────────────────
-
-function TabButton({
-  active,
-  onClick,
-  icon,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  icon: React.ReactNode;
-  label: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`
-        flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium
-        transition-all duration-200
-        ${
-          active
-            ? "bg-accent-primary/15 text-accent-secondary border border-accent-primary/20"
-            : "text-text-muted hover:text-text-secondary hover:bg-white/5"
-        }
-      `}
-    >
-      {icon}
-      {label}
-    </button>
-  );
-}

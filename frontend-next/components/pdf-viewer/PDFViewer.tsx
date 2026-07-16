@@ -59,6 +59,8 @@ export default function PDFViewer() {
 
   const {
     sessionId,
+    files,
+    activeDocumentName,
     currentPage,
     totalPages,
     pdfScale,
@@ -136,24 +138,24 @@ export default function PDFViewer() {
     loadPdfJs();
   }, []);
 
-  // Load PDF document
+  // Load PDF document dynamically when active document changes
   useEffect(() => {
-    if (!pdfLib || !sessionId) return;
+    if (!pdfLib || !sessionId || !activeDocumentName) return;
 
     async function loadPdf() {
       try {
-        const url = getPdfUrl(sessionId!);
+        const fileIndex = files.findIndex((f) => f.name === activeDocumentName);
+        const url = getPdfUrl(sessionId!, fileIndex >= 0 ? fileIndex : 0);
         const doc = await pdfLib.getDocument({ url }).promise;
         setPdfDoc(doc);
         setTotalPages(doc.numPages);
-        setCurrentPage(1);
       } catch (err) {
         console.error("Failed to load PDF:", err);
       }
     }
 
     loadPdf();
-  }, [pdfLib, sessionId, setTotalPages, setCurrentPage]);
+  }, [pdfLib, sessionId, activeDocumentName, files, setTotalPages]);
 
   // Render current page
   const renderPage = useCallback(async () => {
@@ -204,6 +206,17 @@ export default function PDFViewer() {
   const fitWidth = () => setPdfScale(1.0);
 
   if (!sessionId) return null;
+
+  if (!activeDocumentName) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-midnight-950">
+        <FileText className="w-10 h-10 text-text-muted mb-3 opacity-40 animate-pulse" />
+        <p className="text-sm text-text-muted font-medium">
+          Select a document from the Left Sidebar to begin reading
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-midnight-950">

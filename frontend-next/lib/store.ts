@@ -30,6 +30,11 @@ export interface UploadedFile {
   pages?: number;
 }
 
+export interface DocViewState {
+  page: number;
+  scale: number;
+}
+
 interface AppState {
   // Session
   sessionId: string | null;
@@ -53,9 +58,15 @@ interface AppState {
   highlightedCitation: CitationInfo | null;
   pdfScale: number;
 
-  // UI
-  showInsightsPanel: boolean;
-  activePanelTab: "chat" | "insights";
+  // Workspace Context & Layout
+  activeDocumentName: string | null;
+  selectedFileNames: string[];
+  docViewStates: Record<string, DocViewState>;
+  leftSidebarCollapsed: boolean;
+  rightSidebarCollapsed: boolean;
+  leftSidebarWidth: number;
+  rightSidebarWidth: number;
+  activePanelTab: "chat" | "insights" | "sources";
 
   // Actions
   setSession: (sessionId: string, files: UploadedFile[]) => void;
@@ -73,8 +84,17 @@ interface AppState {
   setTotalPages: (pages: number) => void;
   highlightCitation: (citation: CitationInfo | null) => void;
   setPdfScale: (scale: number) => void;
-  setShowInsightsPanel: (show: boolean) => void;
-  setActivePanelTab: (tab: "chat" | "insights") => void;
+  setActivePanelTab: (tab: "chat" | "insights" | "sources") => void;
+
+  // Workspace Actions
+  setActiveDocument: (fileName: string | null) => void;
+  toggleFileSelection: (fileName: string) => void;
+  selectAllFiles: () => void;
+  deselectAllFiles: () => void;
+  setLeftSidebarCollapsed: (collapsed: boolean) => void;
+  setRightSidebarCollapsed: (collapsed: boolean) => void;
+  setLeftSidebarWidth: (width: number) => void;
+  setRightSidebarWidth: (width: number) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -97,12 +117,27 @@ export const useAppStore = create<AppState>((set) => ({
   highlightedCitation: null,
   pdfScale: 1.0,
 
-  showInsightsPanel: false,
+  // Workspace Context Defaults
+  activeDocumentName: null,
+  selectedFileNames: [],
+  docViewStates: {},
+  leftSidebarCollapsed: false,
+  rightSidebarCollapsed: false,
+  leftSidebarWidth: 260,
+  rightSidebarWidth: 360,
   activePanelTab: "chat",
 
   // Actions
   setSession: (sessionId, files) =>
-    set({ sessionId, files, messages: [], insights: null }),
+    set({
+      sessionId,
+      files,
+      messages: [],
+      insights: null,
+      selectedFileNames: files.map((f) => f.name),
+      activeDocumentName: files.length > 0 ? files[0].name : null,
+      docViewStates: {},
+    }),
 
   clearSession: () =>
     set({
@@ -113,7 +148,9 @@ export const useAppStore = create<AppState>((set) => ({
       currentPage: 1,
       totalPages: 0,
       highlightedCitation: null,
-      showInsightsPanel: false,
+      activeDocumentName: null,
+      selectedFileNames: [],
+      docViewStates: {},
     }),
 
   setUploading: (isUploading) => set({ isUploading }),
@@ -143,15 +180,96 @@ export const useAppStore = create<AppState>((set) => ({
   setInsights: (insights) => set({ insights, isLoadingInsights: false }),
   setLoadingInsights: (loading) => set({ isLoadingInsights: loading }),
 
-  setCurrentPage: (page) => set({ currentPage: page }),
-  setTotalPages: (pages) => set({ totalPages: pages }),
-  highlightCitation: (citation) =>
-    set({
-      highlightedCitation: citation,
-      ...(citation ? { currentPage: citation.page } : {}),
+  setCurrentPage: (page) =>
+    set((state) => {
+      // Persist page in active document viewstate
+      if (state.activeDocumentName) {
+        const currentViewState = state.docViewStates[state.activeDocumentName] || { page: 1, scale: state.pdfScale };
+        return {
+          currentPage: page,
+          docViewStates: {
+            ...state.docViewStates,
+            [state.activeDocumentName]: { ...currentViewState, page },
+          },
+        };
+      }
+      return { currentPage: page };
     }),
-  setPdfScale: (scale) => set({ pdfScale: scale }),
 
-  setShowInsightsPanel: (show) => set({ showInsightsPanel: show }),
+  setTotalPages: (pages) => set({ totalPages: pages }),
+
+  highlightCitation: (citation) =>
+    set((state) => {
+      const updates: Partial<AppState> = { highlightedCitation: citation };
+      if (citation) {
+        updates.currentPage = citation.page;
+        // Switch to the cited file if it is different
+        if (citation.source_file && citation.source_file !== state.activeDocumentName) {
+          updates.activeDocumentName = citation.source_file;
+          // Load document state
+          const docState = state.docViewStates[citation.source_file];
+          if (docState) {
+            updates.pdfScale = docState.scale;
+          }
+        }
+        
+        // Persist page in viewstate
+        const activeDoc = citation.source_file || state.activeDocumentName;
+        if (activeDoc) {
+          const currentViewState = state.docViewStates[activeDoc] || { page: 1, scale: state.pdfScale };
+          updates.docViewStates = {
+            ...state.docViewStates,
+            [activeDoc]: { ...currentViewState, page: citation.page },
+          };
+        }
+      }
+      return updates;
+    }),
+
+  setPdfScale: (scale) =>
+    set((state) => {
+      if (state.activeDocumentName) {
+        const currentViewState = state.docViewStates[state.activeDocumentName] || { page: state.currentPage, scale: 1.0 };
+        return {
+          pdfScale: scale,
+          docViewStates: {
+            ...state.docViewStates,
+            [state.activeDocumentName]: { ...currentViewState, scale },
+          },
+        };
+      }
+      return { pdfScale: scale };
+    }),
+
   setActivePanelTab: (tab) => set({ activePanelTab: tab }),
+
+  // Workspace Actions
+  setActiveDocument: (fileName) =>
+    set((state) => {
+      if (!fileName) return { activeDocumentName: null };
+      const docState = state.docViewStates[fileName] || { page: 1, scale: 1.0 };
+      return {
+        activeDocumentName: fileName,
+        currentPage: docState.page,
+        pdfScale: docState.scale,
+      };
+    }),
+
+  toggleFileSelection: (fileName) =>
+    set((state) => {
+      const selected = state.selectedFileNames.includes(fileName)
+        ? state.selectedFileNames.filter((name) => name !== fileName)
+        : [...state.selectedFileNames, fileName];
+      return { selectedFileNames: selected };
+    }),
+
+  selectAllFiles: () =>
+    set((state) => ({ selectedFileNames: state.files.map((f) => f.name) })),
+
+  deselectAllFiles: () => set({ selectedFileNames: [] }),
+
+  setLeftSidebarCollapsed: (collapsed) => set({ leftSidebarCollapsed: collapsed }),
+  setRightSidebarCollapsed: (collapsed) => set({ rightSidebarCollapsed: collapsed }),
+  setLeftSidebarWidth: (width) => set({ leftSidebarWidth: width }),
+  setRightSidebarWidth: (width) => set({ rightSidebarWidth: width }),
 }));
