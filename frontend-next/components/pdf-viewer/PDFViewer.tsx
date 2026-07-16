@@ -229,7 +229,7 @@ export default function PDFViewer() {
           </button>
 
           <div className="flex items-center gap-1.5 px-2">
-            <span className="text-[10px] uppercase font-bold text-text-muted">Scroll</span>
+            <span className="text-[10px] uppercase font-bold text-text-muted">Page</span>
             <input
               type="number"
               value={currentPage}
@@ -276,14 +276,14 @@ export default function PDFViewer() {
           <button
             onClick={fitWidth}
             className="p-1.5 rounded-lg hover:bg-white/5 text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
-            title="Fit scroll"
+            title="Fit width"
           >
             <Maximize2 className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* PDF Scroll Area */}
+      {/* PDF View Area */}
       <div
         ref={containerRef}
         onMouseDown={handleMouseDown}
@@ -297,16 +297,13 @@ export default function PDFViewer() {
         className="flex-1 overflow-auto flex p-6 cursor-grab active:cursor-grabbing select-none"
       >
         <div className="relative m-auto flex flex-col items-center">
-          {/* Top scroll cylinder handle */}
-          <div className="w-[104%] h-4 wood-roller rounded-t-sm shadow-md z-20 wood-roller-top" />
-
-          {/* Parchment background wrapping the PDF canvas */}
-          <div className="parchment-scroll p-4 shadow-2xl relative z-10 border-x border-[#dfcfb2] flex items-center justify-center">
+          {/* Glass panel wrapping the PDF canvas */}
+          <div className="glass-elevated p-4 shadow-2xl relative z-10 rounded-xl flex items-center justify-center border border-white/10">
             <div className="relative">
               <canvas
                 ref={canvasRef}
-                className="shadow-inner rounded-sm"
-                style={{ background: "#FAF6EB" }}
+                className="shadow-inner rounded-lg"
+                style={{ background: "#ffffff" }}
               />
 
               {/* Citation highlight overlay */}
@@ -318,7 +315,7 @@ export default function PDFViewer() {
                     exit={{ opacity: 0 }}
                     className="absolute inset-0 pointer-events-none"
                   >
-                    <div className="absolute top-[10%] left-[5%] right-[5%] h-[20%] citation-highlight rounded animate-chakra" />
+                    <div className="absolute top-[10%] left-[5%] right-[5%] h-[20%] citation-highlight rounded animate-pulse" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -330,16 +327,13 @@ export default function PDFViewer() {
               )}
             </div>
           </div>
-
-          {/* Bottom scroll cylinder handle */}
-          <div className="w-[104%] h-4 wood-roller rounded-b-sm shadow-md z-20 wood-roller-bottom" />
         </div>
       </div>
 
-      {/* Sealing Tag Page Numbers (bottom strip) */}
-      {totalPages > 0 && totalPages <= 50 && (
-        <div className="flex items-center gap-1.5 px-4 py-2.5 border-t border-white/5 overflow-x-auto bg-[#171b26] shadow-inner">
-          <span className="text-[9px] uppercase font-bold text-text-muted tracking-wider pr-1">Volumes:</span>
+  {/* Page Numbers (bottom strip) */}
+  {totalPages > 0 && totalPages <= 50 && (
+    <div className="flex items-center gap-1.5 px-4 py-2.5 border-t border-white/5 overflow-x-auto bg-[#171b26] shadow-inner">
+      <span className="text-[9px] uppercase font-bold text-text-muted tracking-wider pr-1">Pages:</span>
           {Array.from({ length: Math.min(totalPages, 20) }, (_, i) => (
             <button
               key={i + 1}

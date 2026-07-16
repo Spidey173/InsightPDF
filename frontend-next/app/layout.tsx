@@ -2,17 +2,16 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Leaf Archives — Scroll Deciphering & Retrieval Jutsu",
+  title: "InsightPDF — Professional RAG Document Q&A & Analytics",
   description:
-    "RAG-Powered Scroll Archive and Deciphering system. Upload shinobi scrolls and documents, get instant answers with citation grounding, chakra records analysis, and executive summaries.",
+    "High-performance RAG-powered document QA and analytics system. Upload multi-page PDFs, extract semantic insights, and conduct interactive Q&A grounded entirely in the uploaded document content.",
   keywords: [
-    "Naruto",
-    "Scroll Archives",
-    "Shinobi",
-    "RAG",
-    "Jutsu",
-    "Deciphering Engine",
-    "AI",
+    "InsightPDF",
+    "PDF Analysis",
+    "RAG Q&A",
+    "AI Document Search",
+    "PDF Reader",
+    "Document Analytics",
   ],
 };
 

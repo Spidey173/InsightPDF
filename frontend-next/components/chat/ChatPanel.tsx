@@ -11,11 +11,12 @@ import {
   ShieldCheck,
   Sparkles,
   MessageSquare,
+  Brain,
 } from "lucide-react";
 import { useAppStore, type ChatMessage } from "@/lib/store";
 import { streamQuery, type CitationInfo } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
-import { KonohaSwirl, ShurikenIcon } from "@/app/page";
+
 
 // ──────────────────────────────────────
 // Chat Panel (main export)
@@ -116,7 +117,7 @@ export default function ChatPanel() {
           case "error":
             updateMessage(aiMsgId, {
               content:
-                "Sorry, a chakra disruption occurred while deciphering the response. Please try again.",
+                "Sorry, an error occurred while processing the response. Please try again.",
               isStreaming: false,
             });
             break;
@@ -124,7 +125,7 @@ export default function ChatPanel() {
       }
     } catch (err) {
       updateMessage(aiMsgId, {
-        content: `Error: ${err instanceof Error ? err.message : "Failed to channel response"}`,
+        content: `Error: ${err instanceof Error ? err.message : "Failed to generate response"}`,
         isStreaming: false,
       });
     } finally {
@@ -195,7 +196,7 @@ export default function ChatPanel() {
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder="Inquire about scroll secrets..."
+            placeholder="Ask a question about the document..."
             className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-muted resize-none focus:outline-none py-2 px-3 max-h-[120px] pr-10"
             rows={1}
             disabled={isQuerying}
@@ -213,18 +214,18 @@ export default function ChatPanel() {
               }
             `}
             id="send-button"
-            title="Channel Jutsu"
+            title="Send Message"
           >
             {isQuerying ? (
-              <ShurikenIcon className="w-4 h-4 animate-shuriken-fast text-midnight-950" />
+              <Loader2 className="w-4 h-4 animate-spin text-midnight-950" />
             ) : (
-              <ShurikenIcon className="w-4 h-4 text-midnight-950 group-hover:rotate-90 transition-transform duration-300" />
+              <Send className="w-4 h-4 text-midnight-950 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200" />
             )}
           </button>
         </div>
 
         <p className="text-[10px] text-text-muted text-center mt-2.5 opacity-60">
-          Chakra deciphers can be volatile. Double check crucial info with the source scroll.
+          AI-generated answers can be incorrect. Double check crucial info with the source document.
         </p>
       </div>
     </div>
@@ -254,8 +255,8 @@ function MessageBubble({
       className={`flex gap-3.5 ${isUser ? "justify-end" : "justify-start"}`}
     >
       {!isUser && (
-        <div className="shrink-0 w-8 h-8 rounded-full border border-accent-primary/30 bg-surface-secondary flex items-center justify-center mt-1 shadow shadow-accent-primary/5 animate-chakra">
-          <KonohaSwirl className="w-4.5 h-4.5 text-accent-primary" />
+        <div className="shrink-0 w-8 h-8 rounded-full border border-accent-primary/30 bg-surface-secondary flex items-center justify-center mt-1 shadow shadow-accent-primary/5 animate-pulse">
+          <Bot className="w-4.5 h-4.5 text-accent-primary animate-pulse" />
         </div>
       )}
 
@@ -265,7 +266,7 @@ function MessageBubble({
           ${
             isUser
               ? "bg-gradient-to-br from-surface-secondary to-surface-elevated border border-white/5 text-text-primary rounded-tr-none px-4 py-3 shadow"
-              : "parchment-scroll rounded-tl-none px-5 py-4 text-[#2b1f15]"
+              : "glass-elevated rounded-tl-none px-5 py-4 text-text-primary border border-white/5"
           }
         `}
       >
@@ -285,10 +286,8 @@ function MessageBubble({
               </div>
             ) : message.isStreaming ? (
               <div className="flex items-center gap-2 py-1">
-                <div className="w-4.5 h-4.5 text-accent-primary animate-shuriken-fast shrink-0">
-                  <KonohaSwirl className="w-4.5 h-4.5" />
-                </div>
-                <span className="text-xs text-[#5c4636] font-bold">Gathering Chakra & Deciphering...</span>
+                <Loader2 className="w-4 h-4 text-accent-primary animate-spin shrink-0" />
+                <span className="text-xs text-text-muted font-bold">Searching & analyzing...</span>
               </div>
             ) : null}
 
@@ -299,36 +298,36 @@ function MessageBubble({
 
             {/* Citations */}
             {message.citations && message.citations.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-3.5 pt-3 border-t border-[#dfcfb2]">
+              <div className="flex flex-wrap gap-1.5 mt-3.5 pt-3 border-t border-white/5">
                 {message.citations.map((citation, idx) => (
                   <button
                     key={citation.citation_id || idx}
                     onClick={() => onCitationClick(citation)}
                     className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded
-                      bg-[#ff6b00]/10 hover:bg-[#ff6b00]/20 border border-[#ff6b00]/25
-                      text-[#8b4f1d] hover:text-[#ff6b00] text-xs font-bold cursor-pointer
+                      bg-accent-primary/10 hover:bg-accent-primary/20 border border-accent-primary/25
+                      text-accent-primary hover:text-accent-secondary text-xs font-bold cursor-pointer
                       transition-all duration-200 hover:scale-105"
-                    title={`Consult Scroll Page ${citation.page}`}
+                    title={`Consult Page ${citation.page}`}
                   >
-                    <FileText className="w-3 h-3 text-[#ff6b00]" />
+                    <FileText className="w-3 h-3 text-accent-primary" />
                     Page {citation.page}
                   </button>
                 ))}
               </div>
             )}
 
-            {/* Confidence Score (Chakra Grounding Meter) */}
+            {/* Confidence Score (Context Grounding Meter) */}
             {message.confidence_score != null &&
               message.confidence_score > 0 &&
               !message.isStreaming && (
-                <div className="flex items-center gap-2.5 mt-3.5 pt-3 border-t border-[#dfcfb2]">
+                <div className="flex items-center gap-2.5 mt-3.5 pt-3 border-t border-white/5">
                   <ShieldCheck
                     className={`w-4 h-4 shrink-0 ${
                       message.confidence_score >= 0.8
-                        ? "text-[#234b36]"
+                        ? "text-emerald-500"
                         : message.confidence_score >= 0.5
-                          ? "text-[#ff6b00]"
-                          : "text-[#c62828]"
+                          ? "text-accent-primary"
+                          : "text-red-500"
                     }`}
                   />
                   <div className="flex-1">
@@ -336,10 +335,10 @@ function MessageBubble({
                       <div
                         className={`confidence-fill ${
                           message.confidence_score >= 0.8
-                            ? "bg-[#234b36]"
+                            ? "bg-emerald-500"
                             : message.confidence_score >= 0.5
-                              ? "bg-[#ff6b00]"
-                              : "bg-[#c62828]"
+                              ? "bg-accent-primary"
+                              : "bg-red-500"
                         }`}
                         style={{
                           width: `${message.confidence_score * 100}%`,
@@ -347,8 +346,8 @@ function MessageBubble({
                       />
                     </div>
                   </div>
-                  <span className="text-[10px] text-[#5c4636] font-bold font-mono shrink-0">
-                    {Math.round(message.confidence_score * 100)}% chakra grounded
+                  <span className="text-[10px] text-text-muted font-bold font-mono shrink-0">
+                    {Math.round(message.confidence_score * 100)}% grounded
                   </span>
                 </div>
               )}
@@ -385,21 +384,21 @@ function EmptyState({
         animate={{ opacity: 1, scale: 1 }}
         className="text-center"
       >
-        <div className="w-14 h-14 rounded-full border border-accent-primary/20 bg-[#ff6b00]/5 flex items-center justify-center mx-auto mb-4 animate-chakra shadow-sm">
-          <KonohaSwirl className="w-7 h-7 text-accent-primary" />
+        <div className="w-14 h-14 rounded-full border border-accent-primary/20 bg-[#ff6b00]/5 flex items-center justify-center mx-auto mb-4 animate-pulse shadow-sm">
+          <Brain className="w-7 h-7 text-accent-primary" />
         </div>
-        <h3 className="text-base font-bold text-text-primary mb-1 uppercase tracking-wider font-ninja">
-          Leaf Archives Consultation
+        <h3 className="text-base font-bold text-text-primary mb-1 uppercase tracking-wider font-sans">
+          Document Chat Q&A
         </h3>
         <p className="text-xs text-text-muted mb-8 leading-relaxed">
-          Inquire about the contents of your sealed scrolls. The deciphering engine will retrieve records grounded in truths.
+          Ask questions about your uploaded documents. The Q&A engine will search and retrieve context-grounded answers.
         </p>
       </motion.div>
 
       {displayQuestions.length > 0 && (
         <div className="w-full space-y-2.5">
           <p className="text-[9px] text-accent-primary font-bold uppercase tracking-widest mb-3 text-center">
-            Strategic Inquiries
+            Suggested Questions
           </p>
           {displayQuestions.map((q, i) => (
             <motion.button
@@ -413,7 +412,7 @@ function EmptyState({
                 transition-all duration-200 group flex items-center gap-3 relative overflow-hidden"
             >
               <div className="w-5 h-5 rounded bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-accent-primary/10 transition-colors">
-                <ShurikenIcon className="w-3.5 h-3.5 text-text-muted group-hover:text-accent-primary transition-colors group-hover:rotate-45 duration-300" />
+                <FileText className="w-3.5 h-3.5 text-text-muted group-hover:text-accent-primary transition-colors" />
               </div>
               <span className="line-clamp-2 pr-4">{q}</span>
             </motion.button>

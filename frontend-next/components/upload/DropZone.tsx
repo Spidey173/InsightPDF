@@ -8,11 +8,11 @@ import {
   X,
   AlertCircle,
   Loader2,
+  UploadCloud,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { uploadDocuments, getInsights } from "@/lib/api";
 import type { UploadedFile } from "@/lib/store";
-import { KonohaSwirl } from "@/app/page";
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return bytes + " B";
@@ -23,7 +23,6 @@ function formatFileSize(bytes: number): string {
 export default function DropZone() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [showSmoke, setShowSmoke] = useState(false);
 
   const {
     isUploading,
@@ -71,17 +70,17 @@ export default function DropZone() {
     if (selectedFiles.length === 0) return;
 
     setUploading(true);
-    setUploadProgress(0, "Initiating Sealing Jutsu...");
+    setUploadProgress(0, "Initializing file upload...");
     setError(null);
 
     try {
-      setUploadProgress(10, "Inscribing Sealing Formula (Fūinjutsu)...");
+      setUploadProgress(10, "Reading document contents...");
 
       const result = await uploadDocuments(selectedFiles, (progress) => {
-        setUploadProgress(Math.min(progress * 0.4, 40), "Writing Sealing Tags...");
+        setUploadProgress(Math.min(progress * 0.4, 40), "Uploading to server...");
       });
 
-      setUploadProgress(50, "Gathering Nature Energy (Chakra)...");
+      setUploadProgress(50, "Processing semantic context...");
 
       const files: UploadedFile[] = selectedFiles.map((f) => ({
         name: f.name,
@@ -89,10 +88,10 @@ export default function DropZone() {
         type: f.type,
       }));
 
-      setUploadProgress(80, "Mapping Ninja Registry (Vector Index)...");
+      setUploadProgress(80, "Indexing vector embeddings...");
       setSession(result.session_id, files);
 
-      setUploadProgress(90, "Deciphering Scroll Secrets...");
+      setUploadProgress(90, "Generating summary & insights...");
 
       // Fetch insights
       setLoadingInsights(true);
@@ -103,15 +102,11 @@ export default function DropZone() {
         // Insights are optional
       }
 
-      setUploadProgress(100, "Kuchiyose: Complete!");
-      setShowSmoke(true);
-      setTimeout(() => {
-        setShowSmoke(false);
-      }, 900);
+      setUploadProgress(100, "Analysis complete!");
       setSelectedFiles([]);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Jutsu failed. Please try again."
+        err instanceof Error ? err.message : "Document processing failed. Please try again."
       );
     } finally {
       setUploading(false);
@@ -120,68 +115,50 @@ export default function DropZone() {
 
   return (
     <div className="w-full max-w-2xl mx-auto relative">
-      {/* Smoke Puff Overlay */}
-      <AnimatePresence>
-        {showSmoke && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
-            <div className="absolute w-32 h-32 bg-white/40 rounded-full blur-xl animate-smoke" />
-            <div className="absolute w-24 h-24 bg-slate-200/50 rounded-full blur-md animate-smoke [animation-delay:150ms]" />
-            <div className="absolute w-40 h-40 bg-white/30 rounded-full blur-2xl animate-smoke [animation-delay:70ms]" />
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Unrolled Ninja Scroll Container */}
-      <div className="flex items-stretch justify-center w-full relative group">
-        {/* Left Scroll handle roller */}
-        <div className="w-4 rounded-l-md wood-roller shrink-0 shadow-lg relative z-20 transition-transform group-hover:scale-y-105 duration-300" />
-
-        {/* Central Scroll parchment body */}
+      {/* Modern Upload Container */}
+      <div className="w-full relative group">
         <div
           {...getRootProps()}
           className={`
-            flex-1 cursor-pointer parchment-scroll p-10 text-center
-            transition-all duration-300 select-none border-y border-[#dfcfb2] -mx-[1px] relative z-10
+            cursor-pointer p-10 text-center rounded-2xl border-2 border-dashed
+            transition-all duration-300 select-none relative z-10
             ${
               isDragActive
-                ? "bg-[#faf0d2] shadow-inner"
-                : "hover:bg-[#fbf7eb]"
+                ? "bg-accent-primary/5 border-accent-primary shadow-inner"
+                : "bg-surface-secondary/30 border-white/10 hover:border-accent-primary/50 hover:bg-surface-secondary/50"
             }
           `}
         >
           <input {...getInputProps()} id="file-upload-input" />
 
           <div className="flex flex-col items-center gap-4">
-            {/* Summoning Circle with Leaf icon inside */}
+            {/* Upload Icon */}
             <motion.div
-              animate={isDragActive ? { scale: 1.08, rotate: 180 } : { scale: 1, rotate: 0 }}
+              animate={isDragActive ? { scale: 1.08, y: -4 } : { scale: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 200, damping: 15 }}
               className={`
-                w-20 h-20 rounded-full summoning-circle border-2 border-dashed border-[#8c5229]/30
+                w-16 h-16 rounded-full border border-white/10
                 flex items-center justify-center transition-colors duration-300
-                ${isDragActive ? "bg-[#ff6b00]/10 border-[#ff6b00]/40" : "bg-[#8c5229]/5 group-hover:bg-[#8c5229]/10"}
+                ${isDragActive ? "bg-accent-primary/10 border-accent-primary/30" : "bg-white/[0.02] group-hover:bg-white/[0.04] group-hover:border-accent-primary/20"}
               `}
             >
-              <KonohaSwirl
-                className={`w-10 h-10 transition-colors ${
-                  isDragActive ? "text-[#ff6b00]" : "text-[#8c5229]/60 group-hover:text-[#ff6b00]"
+              <UploadCloud
+                className={`w-8 h-8 transition-colors ${
+                  isDragActive ? "text-accent-primary animate-pulse" : "text-text-muted group-hover:text-accent-primary"
                 }`}
               />
             </motion.div>
 
             <div>
-              <p className="text-base font-bold text-[#3a2212] mb-1 font-sans">
-                {isDragActive ? "Inscribe files into the scroll..." : "Drop documents here or click to seal"}
+              <p className="text-base font-bold text-text-primary mb-1 font-sans">
+                {isDragActive ? "Drop documents to upload..." : "Drag & drop documents here, or click to browse"}
               </p>
-              <p className="text-xs text-[#70523e] font-medium">
+              <p className="text-xs text-text-muted font-medium">
                 Supports PDF, DOCX, TXT • Up to 50MB
               </p>
             </div>
           </div>
         </div>
-
-        {/* Right Scroll handle roller */}
-        <div className="w-4 rounded-r-md wood-roller shrink-0 shadow-lg relative z-20 transition-transform group-hover:scale-y-105 duration-300" />
       </div>
 
       {/* Selected Files */}
@@ -202,11 +179,6 @@ export default function DropZone() {
                 transition={{ delay: index * 0.05 }}
                 className="flex items-center gap-3 p-3.5 rounded-xl border border-white/5 bg-surface-secondary/80 relative overflow-hidden"
               >
-                {/* Visual sealing-tag on each item to show it's queued */}
-                <div className="absolute right-0 top-0 bottom-0 flex items-center pr-2 pointer-events-none">
-                  <div className="sealing-tag uppercase">封印</div>
-                </div>
-
                 <div className="w-8 h-8 rounded-lg bg-accent-primary/10 flex items-center justify-center shrink-0 border border-accent-primary/20">
                   <FileText className="w-4 h-4 text-accent-primary" />
                 </div>
@@ -230,7 +202,7 @@ export default function DropZone() {
               </motion.div>
             ))}
 
-            {/* Summon Button */}
+            {/* Upload Button */}
             <motion.button
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -254,14 +226,12 @@ export default function DropZone() {
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                  </svg>
+                  <FileText className="w-4 h-4" />
                   <span>
-                    Summon & Decipher{" "}
+                    Upload & Analyze{" "}
                     {selectedFiles.length === 1
-                      ? "Scroll"
-                      : `${selectedFiles.length} Scrolls`}
+                      ? "Document"
+                      : `${selectedFiles.length} Documents`}
                   </span>
                 </>
               )}
