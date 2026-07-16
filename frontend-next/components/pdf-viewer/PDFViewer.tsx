@@ -206,24 +206,35 @@ export default function PDFViewer() {
   if (!sessionId) return null;
 
   return (
-    <div className="flex flex-col h-full bg-midnight-950">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-white/6 bg-surface-primary/80 backdrop-blur-sm">
-        <div className="flex items-center gap-1">
+    <div className="flex flex-col h-full bg-[#0a0c10]">
+      {/* Forehead Protector style metal Toolbar */}
+      <div className="flex items-center justify-between px-5 py-2.5 border-b border-white/5 bg-[#171b26] shadow-md relative overflow-hidden">
+        {/* Rivets in corners for the headband plate aesthetic */}
+        <div className="absolute left-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 opacity-40">
+          <div className="w-1 h-1 rounded-full bg-slate-400" />
+          <div className="w-1 h-1 rounded-full bg-slate-400" />
+        </div>
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 opacity-40">
+          <div className="w-1 h-1 rounded-full bg-slate-400" />
+          <div className="w-1 h-1 rounded-full bg-slate-400" />
+        </div>
+
+        <div className="flex items-center gap-1 pl-2">
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage <= 1}
-            className="p-1.5 rounded-lg hover:bg-white/8 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed text-[#ff6b00] transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
 
           <div className="flex items-center gap-1.5 px-2">
+            <span className="text-[10px] uppercase font-bold text-text-muted">Scroll</span>
             <input
               type="number"
               value={currentPage}
               onChange={(e) => goToPage(parseInt(e.target.value) || 1)}
-              className="w-10 text-center text-xs bg-white/5 border border-white/10 rounded px-1 py-0.5 focus:outline-none focus:border-accent-primary"
+              className="w-10 text-center text-xs font-bold bg-black/40 border border-white/10 rounded px-1 py-0.5 focus:outline-none focus:border-accent-primary text-text-primary"
               min={1}
               max={totalPages}
             />
@@ -233,28 +244,28 @@ export default function PDFViewer() {
           <button
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage >= totalPages}
-            className="p-1.5 rounded-lg hover:bg-white/8 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed text-[#ff6b00] transition-colors cursor-pointer"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 pr-2">
           <button
             onClick={zoomOut}
-            className="p-1.5 rounded-lg hover:bg-white/8 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
             title="Zoom out"
           >
             <ZoomOut className="w-4 h-4" />
           </button>
 
-          <span className="text-xs text-text-muted px-1 min-w-[3rem] text-center">
+          <span className="text-xs font-bold text-[#ffaa00] px-1 min-w-[3rem] text-center font-mono">
             {Math.round(pdfScale * 100)}%
           </span>
 
           <button
             onClick={zoomIn}
-            className="p-1.5 rounded-lg hover:bg-white/8 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
             title="Zoom in"
           >
             <ZoomIn className="w-4 h-4" />
@@ -264,15 +275,15 @@ export default function PDFViewer() {
 
           <button
             onClick={fitWidth}
-            className="p-1.5 rounded-lg hover:bg-white/8 transition-colors"
-            title="Fit width"
+            className="p-1.5 rounded-lg hover:bg-white/5 text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
+            title="Fit scroll"
           >
             <Maximize2 className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* PDF Canvas */}
+      {/* PDF Scroll Area */}
       <div
         ref={containerRef}
         onMouseDown={handleMouseDown}
@@ -283,50 +294,62 @@ export default function PDFViewer() {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        className="flex-1 overflow-auto flex p-4 cursor-grab active:cursor-grabbing select-none"
+        className="flex-1 overflow-auto flex p-6 cursor-grab active:cursor-grabbing select-none"
       >
-        <div className="relative m-auto">
-          <canvas
-            ref={canvasRef}
-            className="shadow-2xl rounded-sm"
-            style={{ background: "white" }}
-          />
+        <div className="relative m-auto flex flex-col items-center">
+          {/* Top scroll cylinder handle */}
+          <div className="w-[104%] h-4 wood-roller rounded-t-sm shadow-md z-20 wood-roller-top" />
 
-          {/* Citation highlight overlay */}
-          <AnimatePresence>
-            {highlightedCitation && highlightedCitation.page === currentPage && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 pointer-events-none"
-              >
-                <div className="absolute top-[10%] left-[5%] right-[5%] h-[20%] citation-highlight rounded" />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Parchment background wrapping the PDF canvas */}
+          <div className="parchment-scroll p-4 shadow-2xl relative z-10 border-x border-[#dfcfb2] flex items-center justify-center">
+            <div className="relative">
+              <canvas
+                ref={canvasRef}
+                className="shadow-inner rounded-sm"
+                style={{ background: "#FAF6EB" }}
+              />
 
-          {rendering && (
-            <div className="absolute inset-0 flex items-center justify-center bg-midnight-950/50">
-              <div className="w-6 h-6 border-2 border-accent-primary/30 border-t-accent-primary rounded-full animate-spin" />
+              {/* Citation highlight overlay */}
+              <AnimatePresence>
+                {highlightedCitation && highlightedCitation.page === currentPage && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 pointer-events-none"
+                  >
+                    <div className="absolute top-[10%] left-[5%] right-[5%] h-[20%] citation-highlight rounded animate-chakra" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {rendering && (
+                <div className="absolute inset-0 flex items-center justify-center bg-[#0a0c10]/40 rounded-sm">
+                  <div className="w-8 h-8 rounded-full border-2 border-accent-primary/20 border-t-accent-primary animate-spin" />
+                </div>
+              )}
             </div>
-          )}
+          </div>
+
+          {/* Bottom scroll cylinder handle */}
+          <div className="w-[104%] h-4 wood-roller rounded-b-sm shadow-md z-20 wood-roller-bottom" />
         </div>
       </div>
 
-      {/* Page Thumbnails (bottom strip) */}
+      {/* Sealing Tag Page Numbers (bottom strip) */}
       {totalPages > 0 && totalPages <= 50 && (
-        <div className="flex items-center gap-1 px-4 py-2 border-t border-white/6 overflow-x-auto bg-surface-primary/80">
+        <div className="flex items-center gap-1.5 px-4 py-2.5 border-t border-white/5 overflow-x-auto bg-[#171b26] shadow-inner">
+          <span className="text-[9px] uppercase font-bold text-text-muted tracking-wider pr-1">Volumes:</span>
           {Array.from({ length: Math.min(totalPages, 20) }, (_, i) => (
             <button
               key={i + 1}
               onClick={() => goToPage(i + 1)}
               className={`
-                min-w-[2rem] h-7 rounded text-xs font-medium transition-all
+                min-w-[2.2rem] h-7 px-1 rounded-sm text-xs font-bold transition-all cursor-pointer border
                 ${
                   currentPage === i + 1
-                    ? "bg-accent-primary text-white"
-                    : "bg-white/5 text-text-muted hover:bg-white/10 hover:text-text-secondary"
+                    ? "bg-accent-primary text-midnight-950 border-accent-primary shadow-md shadow-accent-primary/10 font-extrabold"
+                    : "bg-surface-secondary text-text-muted hover:bg-white/5 border-white/5"
                 }
               `}
             >
@@ -334,7 +357,7 @@ export default function PDFViewer() {
             </button>
           ))}
           {totalPages > 20 && (
-            <span className="text-xs text-text-muted px-2">
+            <span className="text-xs text-text-muted px-2 font-bold">
               +{totalPages - 20} more
             </span>
           )}

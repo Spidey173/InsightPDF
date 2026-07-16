@@ -2,16 +2,17 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DocuMind AI — Intelligent Document Analysis",
+  title: "Leaf Archives — Scroll Deciphering & Retrieval Jutsu",
   description:
-    "Enterprise-grade AI document intelligence platform. Upload PDFs, get instant answers with source citations, executive summaries, and deep analysis powered by advanced RAG technology.",
+    "RAG-Powered Scroll Archive and Deciphering system. Upload shinobi scrolls and documents, get instant answers with citation grounding, chakra records analysis, and executive summaries.",
   keywords: [
-    "AI",
-    "document analysis",
-    "PDF",
+    "Naruto",
+    "Scroll Archives",
+    "Shinobi",
     "RAG",
-    "enterprise",
-    "intelligence",
+    "Jutsu",
+    "Deciphering Engine",
+    "AI",
   ],
 };
 
@@ -30,13 +31,14 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Permanent+Marker&family=JetBrains+Mono:wght@400;500&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="bg-midnight-950 text-text-primary antialiased">
+      <body className="bg-[#0b0c10] text-[#f1f5f9] antialiased">
         {children}
       </body>
     </html>
   );
 }
+
