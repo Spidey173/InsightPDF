@@ -51,7 +51,7 @@ function Header() {
     <header className="h-13 px-5 flex items-center justify-between border-b border-white/6 bg-surface-primary/60 backdrop-blur-xl z-50">
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-accent-primary to-purple-500 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-accent-primary to-amber-500 flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <h1 className="text-base font-bold tracking-tight">
@@ -80,7 +80,7 @@ function Header() {
             New Session
           </button>
         )}
-        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-accent-primary/30 to-purple-500/30 border border-white/10" />
+        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-accent-primary/30 to-amber-500/30 border border-white/10" />
       </div>
     </header>
   );
@@ -105,7 +105,7 @@ function LandingScreen() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5 }}
         >
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-primary to-purple-500 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-accent-primary/20">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-primary to-amber-500 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-accent-primary/20">
             <Sparkles className="w-8 h-8 text-white" />
           </div>
 

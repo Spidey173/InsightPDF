@@ -207,7 +207,7 @@ export default function ChatPanel() {
               p-2 rounded-lg transition-all duration-200
               ${
                 input.trim() && !isQuerying
-                  ? "bg-accent-primary text-white hover:bg-accent-secondary"
+                  ? "bg-accent-primary text-midnight-950 hover:bg-accent-secondary"
                   : "bg-white/5 text-text-muted cursor-not-allowed"
               }
             `}
@@ -262,7 +262,7 @@ function MessageBubble({
           max-w-[85%] rounded-2xl px-4 py-3
           ${
             isUser
-              ? "bg-accent-primary text-white rounded-br-md"
+              ? "bg-accent-primary text-midnight-950 font-semibold rounded-br-md"
               : "glass rounded-bl-md"
           }
         `}

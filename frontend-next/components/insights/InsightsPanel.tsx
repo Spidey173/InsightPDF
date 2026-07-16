@@ -145,7 +145,7 @@ function SummarySection({
                     key={i}
                     className="flex items-start gap-2 text-sm text-text-secondary"
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-accent-primary shrink-0 mt-0.5" />
                     <span>{finding}</span>
                   </li>
                 ))}

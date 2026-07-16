@@ -204,13 +204,13 @@ export default function DropZone() {
               onClick={handleUpload}
               disabled={isUploading}
               className={`
-                w-full mt-4 py-3.5 px-6 rounded-xl font-semibold text-sm
+                w-full mt-4 py-3.5 px-6 rounded-xl font-bold text-sm
                 flex items-center justify-center gap-2
-                transition-all duration-300
+                transition-all duration-300 shadow-lg
                 ${
                   isUploading
-                    ? "bg-accent-primary/30 cursor-not-allowed"
-                    : "bg-accent-primary hover:bg-accent-secondary text-white shadow-lg shadow-accent-primary/20 hover:shadow-accent-primary/30"
+                    ? "bg-accent-primary/20 text-accent-primary/50 cursor-not-allowed border border-accent-primary/10"
+                    : "bg-accent-primary hover:bg-accent-secondary text-midnight-950 shadow-accent-primary/20 hover:shadow-accent-primary/35 border border-transparent"
                 }
               `}
             >

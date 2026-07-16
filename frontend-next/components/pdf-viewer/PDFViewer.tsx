@@ -325,7 +325,7 @@ export default function PDFViewer() {
                 min-w-[2rem] h-7 rounded text-xs font-medium transition-all
                 ${
                   currentPage === i + 1
-                    ? "bg-accent-primary text-white"
+                    ? "bg-accent-primary text-midnight-950 font-bold"
                     : "bg-white/5 text-text-muted hover:bg-white/10 hover:text-text-secondary"
                 }
               `}
