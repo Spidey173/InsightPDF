@@ -42,14 +42,70 @@ export default function InsightsPanel() {
 
   if (isLoadingInsights) {
     return (
-      <div className="p-4 space-y-4">
-        <div className="animate-shimmer h-6 w-48 rounded-lg" />
-        <div className="space-y-2">
-          <div className="animate-shimmer h-4 w-full rounded" />
-          <div className="animate-shimmer h-4 w-3/4 rounded" />
-          <div className="animate-shimmer h-4 w-5/6 rounded" />
+      <div className="p-4 space-y-6 overflow-y-auto h-full animate-fade-in-up">
+        {/* Executive Summary Card Skeleton */}
+        <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-4 relative overflow-hidden backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <Brain className="w-5 h-5 text-accent-primary animate-pulse" />
+            <div className="animate-shimmer h-5 w-40 rounded-lg" />
+          </div>
+          <div className="space-y-3 pt-2">
+            <div className="animate-shimmer h-3.5 w-full rounded-md" />
+            <div className="animate-shimmer h-3.5 w-11/12 rounded-md" />
+            <div className="animate-shimmer h-3.5 w-4/5 rounded-md" />
+          </div>
+          
+          <div className="space-y-4 pt-4 border-t border-white/5">
+            <div className="flex items-start gap-3">
+              <div className="animate-shimmer w-2 h-2 rounded-full mt-1.5 bg-white/20 shrink-0" />
+              <div className="space-y-1.5 flex-1">
+                <div className="animate-shimmer h-3 w-full rounded-md" />
+                <div className="animate-shimmer h-3 w-3/4 rounded-md" />
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="animate-shimmer w-2 h-2 rounded-full mt-1.5 bg-white/20 shrink-0" />
+              <div className="space-y-1.5 flex-1">
+                <div className="animate-shimmer h-3 w-11/12 rounded-md" />
+                <div className="animate-shimmer h-3 w-4/5 rounded-md" />
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="animate-shimmer h-20 w-full rounded-xl mt-4" />
+
+        {/* Key Entities Skeleton */}
+        <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-4 relative overflow-hidden backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-white/30" />
+            <div className="animate-shimmer h-5 w-32 rounded-lg" />
+          </div>
+          <div className="flex flex-wrap gap-2 pt-2">
+            <div className="animate-shimmer h-7 w-20 rounded-full border border-white/5 animate-pulse" />
+            <div className="animate-shimmer h-7 w-28 rounded-full border border-white/5 animate-pulse" />
+            <div className="animate-shimmer h-7 w-24 rounded-full border border-white/5 animate-pulse" />
+            <div className="animate-shimmer h-7 w-32 rounded-full border border-white/5 animate-pulse" />
+            <div className="animate-shimmer h-7 w-16 rounded-full border border-white/5 animate-pulse" />
+            <div className="animate-shimmer h-7 w-26 rounded-full border border-white/5 animate-pulse" />
+          </div>
+        </div>
+
+        {/* Document Metrics Card Skeleton */}
+        <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex justify-between gap-4 backdrop-blur-md">
+          <div className="flex-1 space-y-2">
+            <div className="animate-shimmer h-3 w-12 rounded bg-white/10" />
+            <div className="animate-shimmer h-6 w-8 rounded-lg bg-white/10" />
+          </div>
+          <div className="w-px bg-white/5 h-10 self-center" />
+          <div className="flex-1 space-y-2">
+            <div className="animate-shimmer h-3 w-16 rounded bg-white/10" />
+            <div className="animate-shimmer h-6 w-10 rounded-lg bg-white/10" />
+          </div>
+          <div className="w-px bg-white/5 h-10 self-center" />
+          <div className="flex-1 space-y-2">
+            <div className="animate-shimmer h-3 w-14 rounded bg-white/10" />
+            <div className="animate-shimmer h-6 w-12 rounded-lg bg-white/10" />
+          </div>
+        </div>
       </div>
     );
   }
