@@ -45,7 +45,7 @@ export default function WorkspaceHeader() {
             <Sparkles className="w-4 h-4 text-midnight-950 font-bold" />
           </div>
           <h1 className="text-sm font-bold tracking-tight">
-            DocuMind <span className="text-text-muted font-medium ml-0.5">AI</span>
+            InsightPDF
           </h1>
         </div>
 

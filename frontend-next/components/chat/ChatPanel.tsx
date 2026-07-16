@@ -224,7 +224,7 @@ export default function ChatPanel() {
         </div>
 
         <p className="text-[10px] text-text-muted text-center mt-2 opacity-60">
-          DocuMind AI may make mistakes. Verify important information with the source document.
+          InsightPDF may make mistakes. Verify important information with the source document.
         </p>
       </div>
     </div>

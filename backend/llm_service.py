@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 # Prompt Templates
 # ──────────────────────────────────────────────
 
-ANSWER_SYSTEM_PROMPT = """You are DocuMind AI, a highly accurate document intelligence assistant.
+ANSWER_SYSTEM_PROMPT = """You are InsightPDF, a highly accurate document intelligence assistant.
 You answer questions based SOLELY on the provided context from uploaded documents.
 
 RULES:
@@ -135,7 +135,7 @@ class FreeLLMService:
                 api_key=api_key,
                 default_headers={
                     "HTTP-Referer": "http://localhost:8000",
-                    "X-Title": "DocuMind AI"
+                    "X-Title": "InsightPDF"
                 }
             )
 

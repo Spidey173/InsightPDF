@@ -53,7 +53,7 @@ class Settings:
     OCR_MIN_TEXT_LENGTH: int = 30  # Min chars per page before triggering OCR
 
     # === Application ===
-    APP_NAME: str = "DocuMind AI"
+    APP_NAME: str = "InsightPDF"
     APP_VERSION: str = "2.0.0"
     MAX_SESSIONS: int = int(os.getenv("MAX_SESSIONS", "200"))
     MAX_FILE_SIZE_MB: int = int(os.getenv("MAX_FILE_SIZE_MB", "50"))

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DocuMind AI — Intelligent Document Analysis",
+  title: "InsightPDF — Intelligent Document Analysis",
   description:
     "Enterprise-grade AI document intelligence platform. Upload PDFs, get instant answers with source citations, executive summaries, and deep analysis powered by advanced RAG technology.",
   keywords: [
