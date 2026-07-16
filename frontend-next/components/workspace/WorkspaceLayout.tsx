@@ -70,7 +70,7 @@ export default function WorkspaceLayout() {
         <ResizablePanel
           width={rightSidebarWidth}
           minWidth={320}
-          maxWidth={650}
+          maxWidth={800}
           direction="right"
           onWidthChange={setRightSidebarWidth}
           isCollapsed={rightSidebarCollapsed}
