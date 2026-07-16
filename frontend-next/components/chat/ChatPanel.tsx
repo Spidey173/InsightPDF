@@ -11,12 +11,10 @@ import {
   ShieldCheck,
   Sparkles,
   MessageSquare,
-  Brain,
 } from "lucide-react";
 import { useAppStore, type ChatMessage } from "@/lib/store";
 import { streamQuery, type CitationInfo } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
-
 
 // ──────────────────────────────────────
 // Chat Panel (main export)
@@ -117,7 +115,7 @@ export default function ChatPanel() {
           case "error":
             updateMessage(aiMsgId, {
               content:
-                "Sorry, an error occurred while processing the response. Please try again.",
+                "Sorry, an error occurred while generating the response. Please try again.",
               isStreaming: false,
             });
             break;
@@ -125,7 +123,7 @@ export default function ChatPanel() {
       }
     } catch (err) {
       updateMessage(aiMsgId, {
-        content: `Error: ${err instanceof Error ? err.message : "Failed to generate response"}`,
+        content: `Error: ${err instanceof Error ? err.message : "Failed to get response"}`,
         isStreaming: false,
       });
     } finally {
@@ -157,9 +155,9 @@ export default function ChatPanel() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0c10]">
+    <div className="flex flex-col h-full">
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-5 py-5 space-y-5">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {messages.length === 0 ? (
           <EmptyState
             suggestedQuestions={insights?.suggested_questions || []}
@@ -189,15 +187,15 @@ export default function ChatPanel() {
       )}
 
       {/* Input Area */}
-      <div className="px-5 py-4 border-t border-white/5 bg-[#10121a]/60">
-        <div className="flex items-end gap-2 p-2 rounded-xl border border-white/5 bg-surface-secondary/80 focus-within:border-accent-primary/45 transition-colors relative">
+      <div className="px-4 py-3 border-t border-white/6">
+        <div className="flex items-end gap-2 p-2 rounded-xl glass-elevated">
           <textarea
             ref={inputRef}
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder="Ask a question about the document..."
-            className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-muted resize-none focus:outline-none py-2 px-3 max-h-[120px] pr-10"
+            placeholder="Ask anything about your documents..."
+            className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-muted resize-none focus:outline-none py-1.5 px-2 max-h-[120px]"
             rows={1}
             disabled={isQuerying}
             id="chat-input"
@@ -206,26 +204,25 @@ export default function ChatPanel() {
             onClick={handleSubmit}
             disabled={!input.trim() || isQuerying}
             className={`
-              p-2.5 rounded-lg transition-all duration-300 cursor-pointer group flex items-center justify-center shrink-0
+              p-2 rounded-lg transition-all duration-200
               ${
                 input.trim() && !isQuerying
-                  ? "bg-accent-primary text-midnight-950 hover:bg-accent-secondary shadow shadow-accent-primary/20"
+                  ? "bg-accent-primary text-white hover:bg-accent-secondary"
                   : "bg-white/5 text-text-muted cursor-not-allowed"
               }
             `}
             id="send-button"
-            title="Send Message"
           >
             {isQuerying ? (
-              <Loader2 className="w-4 h-4 animate-spin text-midnight-950" />
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <Send className="w-4 h-4 text-midnight-950 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200" />
+              <Send className="w-4 h-4" />
             )}
           </button>
         </div>
 
-        <p className="text-[10px] text-text-muted text-center mt-2.5 opacity-60">
-          AI-generated answers can be incorrect. Double check crucial info with the source document.
+        <p className="text-[10px] text-text-muted text-center mt-2 opacity-60">
+          DocuMind AI may make mistakes. Verify important information with the source document.
         </p>
       </div>
     </div>
@@ -252,32 +249,26 @@ function MessageBubble({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: animationDelay, duration: 0.3 }}
-      className={`flex gap-3.5 ${isUser ? "justify-end" : "justify-start"}`}
+      className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}
     >
       {!isUser && (
-        <div className="shrink-0 w-8 h-8 rounded-full border border-accent-primary/30 bg-surface-secondary flex items-center justify-center mt-1 shadow shadow-accent-primary/5 animate-pulse">
-          <Bot className="w-4.5 h-4.5 text-accent-primary animate-pulse" />
+        <div className="shrink-0 w-7 h-7 rounded-lg bg-accent-primary/15 flex items-center justify-center mt-0.5">
+          <Bot className="w-4 h-4 text-accent-primary" />
         </div>
       )}
 
       <div
         className={`
-          max-w-[85%] rounded-2xl relative
+          max-w-[85%] rounded-2xl px-4 py-3
           ${
             isUser
-              ? "bg-gradient-to-br from-surface-secondary to-surface-elevated border border-white/5 text-text-primary rounded-tr-none px-4 py-3 shadow"
-              : "glass-elevated rounded-tl-none px-5 py-4 text-text-primary border border-white/5"
+              ? "bg-accent-primary text-white rounded-br-md"
+              : "glass rounded-bl-md"
           }
         `}
       >
-        {isUser && (
-          <div className="absolute right-0 top-0 translate-x-[4px] -translate-y-[4px]">
-            <div className="w-1.5 h-1.5 rounded-full bg-accent-primary" />
-          </div>
-        )}
-
         {isUser ? (
-          <p className="text-sm leading-relaxed text-text-primary font-medium">{message.content}</p>
+          <p className="text-sm leading-relaxed">{message.content}</p>
         ) : (
           <>
             {message.content ? (
@@ -286,59 +277,63 @@ function MessageBubble({
               </div>
             ) : message.isStreaming ? (
               <div className="flex items-center gap-2 py-1">
-                <Loader2 className="w-4 h-4 text-accent-primary animate-spin shrink-0" />
-                <span className="text-xs text-text-muted font-bold">Searching & analyzing...</span>
+                <div className="flex gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-primary/60 animate-bounce [animation-delay:0ms]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-primary/60 animate-bounce [animation-delay:150ms]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-primary/60 animate-bounce [animation-delay:300ms]" />
+                </div>
+                <span className="text-xs text-text-muted">Thinking...</span>
               </div>
             ) : null}
 
             {/* Streaming cursor */}
             {message.isStreaming && message.content && (
-              <span className="inline-block w-1.5 h-4 bg-accent-primary animate-pulse ml-1 align-middle" />
+              <span className="inline-block w-0.5 h-4 bg-accent-primary animate-pulse ml-0.5 align-middle" />
             )}
 
             {/* Citations */}
             {message.citations && message.citations.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-3.5 pt-3 border-t border-white/5">
+              <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/6">
                 {message.citations.map((citation, idx) => (
                   <button
                     key={citation.citation_id || idx}
                     onClick={() => onCitationClick(citation)}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded
-                      bg-accent-primary/10 hover:bg-accent-primary/20 border border-accent-primary/25
-                      text-accent-primary hover:text-accent-secondary text-xs font-bold cursor-pointer
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md
+                      bg-accent-primary/10 hover:bg-accent-primary/20
+                      text-accent-secondary text-xs font-medium
                       transition-all duration-200 hover:scale-105"
-                    title={`Consult Page ${citation.page}`}
+                    title={`Go to Page ${citation.page}`}
                   >
-                    <FileText className="w-3 h-3 text-accent-primary" />
+                    <FileText className="w-3 h-3" />
                     Page {citation.page}
                   </button>
                 ))}
               </div>
             )}
 
-            {/* Confidence Score (Context Grounding Meter) */}
+            {/* Confidence Score */}
             {message.confidence_score != null &&
               message.confidence_score > 0 &&
               !message.isStreaming && (
-                <div className="flex items-center gap-2.5 mt-3.5 pt-3 border-t border-white/5">
+                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/6">
                   <ShieldCheck
-                    className={`w-4 h-4 shrink-0 ${
+                    className={`w-3.5 h-3.5 ${
                       message.confidence_score >= 0.8
-                        ? "text-emerald-500"
+                        ? "text-success"
                         : message.confidence_score >= 0.5
-                          ? "text-accent-primary"
-                          : "text-red-500"
+                          ? "text-warning"
+                          : "text-danger"
                     }`}
                   />
                   <div className="flex-1">
-                    <div className="confidence-meter bg-black/10">
+                    <div className="confidence-meter">
                       <div
                         className={`confidence-fill ${
                           message.confidence_score >= 0.8
-                            ? "bg-emerald-500"
+                            ? "bg-success"
                             : message.confidence_score >= 0.5
-                              ? "bg-accent-primary"
-                              : "bg-red-500"
+                              ? "bg-warning"
+                              : "bg-danger"
                         }`}
                         style={{
                           width: `${message.confidence_score * 100}%`,
@@ -346,7 +341,7 @@ function MessageBubble({
                       />
                     </div>
                   </div>
-                  <span className="text-[10px] text-text-muted font-bold font-mono shrink-0">
+                  <span className="text-[10px] text-text-muted font-mono">
                     {Math.round(message.confidence_score * 100)}% grounded
                   </span>
                 </div>
@@ -356,7 +351,7 @@ function MessageBubble({
       </div>
 
       {isUser && (
-        <div className="shrink-0 w-8 h-8 rounded-full border border-white/10 bg-surface-secondary flex items-center justify-center mt-1 shadow">
+        <div className="shrink-0 w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center mt-0.5">
           <User className="w-4 h-4 text-text-secondary" />
         </div>
       )}
@@ -375,29 +370,29 @@ function EmptyState({
   suggestedQuestions: string[];
   onQuestionClick: (q: string) => void;
 }) {
-  const displayQuestions = suggestedQuestions.slice(0, 5);
+  const displayQuestions = suggestedQuestions.slice(0, 6);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full py-8 px-4 max-w-lg mx-auto">
+    <div className="flex flex-col items-center justify-center h-full py-8 px-4">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         className="text-center"
       >
-        <div className="w-14 h-14 rounded-full border border-accent-primary/20 bg-[#ff6b00]/5 flex items-center justify-center mx-auto mb-4 animate-pulse shadow-sm">
-          <Brain className="w-7 h-7 text-accent-primary" />
+        <div className="w-14 h-14 rounded-2xl bg-accent-primary/10 flex items-center justify-center mx-auto mb-4">
+          <Sparkles className="w-7 h-7 text-accent-primary" />
         </div>
-        <h3 className="text-base font-bold text-text-primary mb-1 uppercase tracking-wider font-sans">
-          Document Chat Q&A
+        <h3 className="text-lg font-semibold text-text-primary mb-1">
+          Ready to analyze
         </h3>
-        <p className="text-xs text-text-muted mb-8 leading-relaxed">
-          Ask questions about your uploaded documents. The Q&A engine will search and retrieve context-grounded answers.
+        <p className="text-sm text-text-muted mb-6 max-w-xs">
+          Ask any question about your uploaded documents. I&apos;ll find the answer with source citations.
         </p>
       </motion.div>
 
       {displayQuestions.length > 0 && (
-        <div className="w-full space-y-2.5">
-          <p className="text-[9px] text-accent-primary font-bold uppercase tracking-widest mb-3 text-center">
+        <div className="w-full max-w-md space-y-2">
+          <p className="text-xs text-text-muted font-medium uppercase tracking-wider mb-2 text-center">
             Suggested Questions
           </p>
           {displayQuestions.map((q, i) => (
@@ -407,14 +402,12 @@ function EmptyState({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 + i * 0.05 }}
               onClick={() => onQuestionClick(q)}
-              className="w-full text-left p-3.5 rounded-xl border border-white/5 bg-surface-secondary/70 hover:border-accent-primary/20 hover:bg-surface-secondary
-                text-xs font-semibold text-text-secondary hover:text-text-primary cursor-pointer
-                transition-all duration-200 group flex items-center gap-3 relative overflow-hidden"
+              className="w-full text-left p-3 rounded-xl glass hover:glass-active
+                text-sm text-text-secondary hover:text-text-primary
+                transition-all duration-200 group flex items-center gap-2"
             >
-              <div className="w-5 h-5 rounded bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-accent-primary/10 transition-colors">
-                <FileText className="w-3.5 h-3.5 text-text-muted group-hover:text-accent-primary transition-colors" />
-              </div>
-              <span className="line-clamp-2 pr-4">{q}</span>
+              <MessageSquare className="w-3.5 h-3.5 text-text-muted group-hover:text-accent-primary shrink-0 transition-colors" />
+              <span className="line-clamp-2">{q}</span>
             </motion.button>
           ))}
         </div>
@@ -440,21 +433,21 @@ function SuggestedFollowups({
 
   // Simple follow-up suggestions based on context
   const suggestions = [
-    "Elaborate on the details.",
-    "Show key takeaways.",
-    "Identify critical risks.",
+    "Can you elaborate on that?",
+    "What are the key takeaways?",
+    "Are there any risks mentioned?",
   ];
 
   if (!lastAssistant || lastAssistant.content.length < 50) return null;
 
   return (
-    <div className="px-5 py-2.5 flex gap-2 overflow-x-auto bg-[#10121a]/30">
+    <div className="px-4 py-2 flex gap-2 overflow-x-auto">
       {suggestions.map((s, i) => (
         <button
           key={i}
           onClick={() => onClick(s)}
-          className="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold text-text-secondary cursor-pointer
-            border border-white/8 hover:border-accent-primary/30 hover:text-accent-primary
+          className="shrink-0 px-3 py-1.5 rounded-full text-xs text-text-muted
+            border border-white/8 hover:border-accent-primary/30 hover:text-accent-secondary
             hover:bg-accent-primary/5 transition-all duration-200"
         >
           {s}
@@ -463,4 +456,3 @@ function SuggestedFollowups({
     </div>
   );
 }
-
