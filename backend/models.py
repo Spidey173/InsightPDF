@@ -62,12 +62,14 @@ class QueryRequest(BaseModel):
     session_id: str
     question: str
     history: Optional[List[Dict[str, str]]] = None  # Multi-turn conversation
+    active_files: Optional[List[str]] = None
 
 
 class StreamQueryRequest(BaseModel):
     session_id: str
     question: str
     history: Optional[List[Dict[str, str]]] = None
+    active_files: Optional[List[str]] = None
 
 
 # === Response Models ===

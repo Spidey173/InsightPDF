@@ -19,9 +19,9 @@ import logging
 import uuid
 import asyncio
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Optional
 
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse, FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -110,7 +110,10 @@ async def startup_event():
 # ──────────────────────────────────────────────
 
 @app.post("/api/upload", response_model=UploadResponse)
-async def upload_documents(files: List[UploadFile] = File(...)):
+async def upload_documents(
+    files: List[UploadFile] = File(...),
+    session_id: Optional[str] = Form(None)
+):
     """
     Upload and process documents (PDF, DOCX, TXT).
     Returns session_id and processing results.
@@ -200,27 +203,56 @@ async def upload_documents(files: List[UploadFile] = File(...)):
         raise HTTPException(status_code=400, detail=error_msg)
 
     try:
-        # Create vector store and index
+        # If we have an existing session, merge files, paths, metadata, and chunks
+        if session_id and session_id in sessions:
+            existing_session = sessions[session_id]
+            saved_paths = existing_session.get("file_paths", []) + saved_paths
+            file_names = existing_session.get("file_names", []) + file_names
+            doc_metadata = existing_session.get("metadata", []) + doc_metadata
+            all_chunks = existing_session.get("chunks", []) + all_chunks
+
+        # Create vector store and index with all combined chunks
         vector_store = VectorStore()
         vector_store.add_documents(all_chunks)
 
-        # Generate session ID
-        session_id = str(uuid.uuid4())
+        # Generate session ID if not existing
+        if not session_id or session_id not in sessions:
+            session_id = str(uuid.uuid4())
 
-        # Generate insights asynchronously
-        insights = None
+        # Generate insights per document (avoiding regenerating for existing files)
+        existing_insights = {}
+        if session_id and session_id in sessions:
+            existing_insights = sessions[session_id].get("insights", {})
+
+        insights_dict = {**existing_insights}
         try:
             provider = settings.LLM_PROVIDER
             llm = FreeLLMService(provider=provider)
-            total_pages = sum(m.get("num_pages", 0) or 0 for m in doc_metadata)
-            insights = generate_document_insights(
-                session_id=session_id,
-                chunks=all_chunks,
-                llm_service=llm,
-                total_pages=total_pages
-            )
+            
+            # Group chunks by filename
+            from collections import defaultdict
+            chunks_by_file = defaultdict(list)
+            for chunk in all_chunks:
+                fn = chunk.get("source_file", "unknown")
+                chunks_by_file[fn].append(chunk)
+
+            for fn, file_chunks in chunks_by_file.items():
+                if fn in insights_dict:
+                    continue # Skip already generated insights
+
+                matching_meta = next((m for m in doc_metadata if m.get("filename") == fn), {})
+                pages_count = matching_meta.get("num_pages", 0)
+
+                logger.info(f"Generating insights for {fn} ({len(file_chunks)} chunks)...")
+                doc_insights = generate_document_insights(
+                    session_id=session_id,
+                    chunks=file_chunks,
+                    llm_service=llm,
+                    total_pages=pages_count
+                )
+                insights_dict[fn] = doc_insights
         except Exception as e:
-            logger.warning(f"Insights generation failed: {e}")
+            logger.error(f"Per-document insights generation failed: {e}", exc_info=True)
 
         # Store session
         sessions[session_id] = {
@@ -229,7 +261,7 @@ async def upload_documents(files: List[UploadFile] = File(...)):
             "file_paths": saved_paths,
             "file_names": file_names,
             "metadata": doc_metadata,
-            "insights": insights,
+            "insights": insights_dict,
             "created_at": time.time(),
         }
 
@@ -276,6 +308,9 @@ async def answer_query(request: QueryRequest):
     try:
         # 1. Retrieve candidates (hybrid search)
         candidates = vector_store.search(question, k=settings.RETRIEVAL_INITIAL_K)
+
+        if request.active_files is not None:
+            candidates = [c for c in candidates if c.get("source_file") in request.active_files]
 
         if not candidates:
             return QueryResponse(
@@ -378,6 +413,9 @@ async def stream_query(request: StreamQueryRequest):
             # 1. Retrieve and re-rank
             candidates = vector_store.search(question, k=settings.RETRIEVAL_INITIAL_K)
 
+            if request.active_files is not None:
+                candidates = [c for c in candidates if c.get("source_file") in request.active_files]
+
             if not candidates:
                 yield _sse_event("token", {
                     "text": "I couldn't find any relevant information in the uploaded documents to answer your question."
@@ -466,10 +504,21 @@ async def stream_query(request: StreamQueryRequest):
 # ──────────────────────────────────────────────
 
 @app.get("/api/documents/{session_id}/pdf")
-async def get_document_pdf(session_id: str, file_index: int = 0):
+async def get_document_pdf(
+    session_id: str,
+    file_index: int = 0,
+    document_name: Optional[str] = None
+):
     """Serve the uploaded PDF for the viewer."""
     session_data = _get_session(session_id)
     file_paths = session_data.get("file_paths", [])
+    file_names = session_data.get("file_names", [])
+
+    if document_name:
+        try:
+            file_index = file_names.index(document_name)
+        except ValueError:
+            raise HTTPException(status_code=404, detail="Document file not found in session")
 
     if not file_paths or file_index >= len(file_paths):
         raise HTTPException(status_code=404, detail="Document file not found")
@@ -481,7 +530,7 @@ async def get_document_pdf(session_id: str, file_index: int = 0):
     return FileResponse(
         path=str(file_path),
         media_type="application/pdf",
-        filename=session_data.get("file_names", ["document.pdf"])[file_index]
+        filename=file_names[file_index] if file_index < len(file_names) else "document.pdf"
     )
 
 
@@ -490,30 +539,47 @@ async def get_document_pdf(session_id: str, file_index: int = 0):
 # ──────────────────────────────────────────────
 
 @app.get("/api/documents/{session_id}/insights")
-async def get_document_insights(session_id: str):
+async def get_document_insights(session_id: str, document_name: Optional[str] = None):
     """Get pre-generated document insights (summary, questions, entities)."""
     session_data = _get_session(session_id)
-    insights = session_data.get("insights")
+    insights_dict = session_data.get("insights", {})
 
-    if insights:
+    if not isinstance(insights_dict, dict):
+        insights_dict = {}
+
+    # Default to first document if no document name specified
+    if not document_name:
+        file_names = session_data.get("file_names", [])
+        if file_names:
+            document_name = file_names[0]
+
+    if not document_name:
+        raise HTTPException(status_code=400, detail="No active document in session")
+
+    # If already generated, return it
+    if document_name in insights_dict:
+        insights = insights_dict[document_name]
         return insights.model_dump() if hasattr(insights, 'model_dump') else insights.dict()
 
     # Generate on-demand if not available
     try:
-        chunks = session_data.get("chunks", [])
+        chunks = [c for c in session_data.get("chunks", []) if c.get("source_file") == document_name]
         llm = FreeLLMService(provider=settings.LLM_PROVIDER)
-        total_pages = sum(m.get("num_pages", 0) or 0 for m in session_data.get("metadata", []))
+        matching_meta = next((m for m in session_data.get("metadata", []) if m.get("filename") == document_name), {})
+        total_pages = matching_meta.get("num_pages", 0)
+
         insights = generate_document_insights(
             session_id=session_id,
             chunks=chunks,
             llm_service=llm,
             total_pages=total_pages
         )
-        session_data["insights"] = insights
+        insights_dict[document_name] = insights
+        session_data["insights"] = insights_dict
         return insights.model_dump() if hasattr(insights, 'model_dump') else insights.dict()
     except Exception as e:
-        logger.error(f"Insights generation failed: {e}")
-        raise HTTPException(status_code=500, detail="Failed to generate insights")
+        logger.error(f"Insights generation failed for {document_name}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate insights for {document_name}")
 
 
 # ──────────────────────────────────────────────

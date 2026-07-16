@@ -31,6 +31,7 @@ export default function ChatPanel() {
     messages,
     isQuerying,
     insights,
+    selectedFileNames,
     addMessage,
     appendToMessage,
     updateMessage,
@@ -95,7 +96,7 @@ export default function ChatPanel() {
       const citations: CitationInfo[] = [];
       let confidence = 0;
 
-      for await (const event of streamQuery(sessionId, question, history)) {
+      for await (const event of streamQuery(sessionId, question, history, selectedFileNames)) {
         switch (event.event) {
           case "token":
             appendToMessage(aiMsgId, event.data.text as string);

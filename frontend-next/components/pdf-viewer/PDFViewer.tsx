@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Maximize2,
+  FileText,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { getPdfUrl } from "@/lib/api";
@@ -144,8 +145,7 @@ export default function PDFViewer() {
 
     async function loadPdf() {
       try {
-        const fileIndex = files.findIndex((f) => f.name === activeDocumentName);
-        const url = getPdfUrl(sessionId!, fileIndex >= 0 ? fileIndex : 0);
+        const url = getPdfUrl(sessionId!, activeDocumentName!);
         const doc = await pdfLib.getDocument({ url }).promise;
         setPdfDoc(doc);
         setTotalPages(doc.numPages);

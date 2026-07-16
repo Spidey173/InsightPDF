@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAppStore } from "@/lib/store";
+import { getInsights } from "@/lib/api";
 import ResizablePanel from "./ResizablePanel";
 import FileManager from "./FileManager";
 import WorkspaceHeader from "./WorkspaceHeader";
@@ -9,6 +11,7 @@ import AIWorkspace from "./AIWorkspace";
 
 export default function WorkspaceLayout() {
   const {
+    sessionId,
     leftSidebarCollapsed,
     rightSidebarCollapsed,
     leftSidebarWidth,
@@ -16,7 +19,28 @@ export default function WorkspaceLayout() {
     activeDocumentName,
     setLeftSidebarWidth,
     setRightSidebarWidth,
+    setInsights,
+    setLoadingInsights,
   } = useAppStore();
+
+  // Load document-specific insights dynamically when active document changes
+  useEffect(() => {
+    if (!sessionId || !activeDocumentName) return;
+
+    async function loadDocInsights() {
+      setLoadingInsights(true);
+      try {
+        const docInsights = await getInsights(sessionId!, activeDocumentName!);
+        setInsights(docInsights);
+      } catch (err) {
+        console.error("Failed to load document insights:", err);
+      } finally {
+        setLoadingInsights(false);
+      }
+    }
+
+    loadDocInsights();
+  }, [sessionId, activeDocumentName, setInsights, setLoadingInsights]);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-midnight-950 text-text-primary">

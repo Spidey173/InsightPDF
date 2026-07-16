@@ -90,10 +90,14 @@ export interface SessionInfo {
 
 export async function uploadDocuments(
   files: File[],
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
+  sessionId?: string
 ): Promise<UploadResponse> {
   const formData = new FormData();
   files.forEach((file) => formData.append("files", file));
+  if (sessionId) {
+    formData.append("session_id", sessionId);
+  }
 
   const xhr = new XMLHttpRequest();
 
@@ -149,7 +153,8 @@ export async function queryDocuments(
 export async function* streamQuery(
   sessionId: string,
   question: string,
-  history?: Array<{ role: string; content: string }>
+  history?: Array<{ role: string; content: string }>,
+  activeFiles?: string[]
 ): AsyncGenerator<StreamEvent> {
   const response = await fetch(`${API_BASE}/api/query/stream`, {
     method: "POST",
@@ -158,6 +163,7 @@ export async function* streamQuery(
       session_id: sessionId,
       question,
       history,
+      active_files: activeFiles,
     }),
   });
 
@@ -199,11 +205,13 @@ export async function* streamQuery(
 }
 
 export async function getInsights(
-  sessionId: string
+  sessionId: string,
+  documentName?: string
 ): Promise<InsightsResponse> {
-  const response = await fetch(
-    `${API_BASE}/api/documents/${sessionId}/insights`
-  );
+  const url = documentName
+    ? `${API_BASE}/api/documents/${sessionId}/insights?document_name=${encodeURIComponent(documentName)}`
+    : `${API_BASE}/api/documents/${sessionId}/insights`;
+  const response = await fetch(url);
   if (!response.ok) throw new Error("Failed to fetch insights");
   return response.json();
 }
@@ -226,6 +234,6 @@ export async function getConversationHistory(
   return response.json();
 }
 
-export function getPdfUrl(sessionId: string, fileIndex: number = 0): string {
-  return `${API_BASE}/api/documents/${sessionId}/pdf?file_index=${fileIndex}`;
+export function getPdfUrl(sessionId: string, documentName: string): string {
+  return `${API_BASE}/api/documents/${sessionId}/pdf?document_name=${encodeURIComponent(documentName)}`;
 }

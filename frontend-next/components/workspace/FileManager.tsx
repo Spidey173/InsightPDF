@@ -51,7 +51,7 @@ export default function FileManager() {
       setUploadProgress(20, "Uploading to server...");
       const result = await uploadDocuments(acceptedFiles, (progress) => {
         setUploadProgress(Math.min(progress * 0.4, 40), "Uploading...");
-      });
+      }, sessionId || undefined);
 
       setUploadProgress(60, "Processing documents...");
       
