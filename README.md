@@ -66,11 +66,6 @@ A high-performance, full-stack **Document Q&A and Analytics system** powered by 
 
 ---
 
-## 📸 Demo Preview
-*(Placeholders for application dashboard)*
-
----
-
 ## ⚙️ Repository Setup
 
 ### Backend (FastAPI)
