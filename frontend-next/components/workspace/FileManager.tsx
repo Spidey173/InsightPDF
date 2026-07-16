@@ -7,11 +7,8 @@ import {
   Layers,
   Archive,
   History,
-  FolderPlus,
   Settings,
   Plus,
-  CheckSquare,
-  Square,
   ChevronRight,
 } from "lucide-react";
 import { uploadDocuments, getInsights } from "@/lib/api";
@@ -94,14 +91,6 @@ export default function FileManager() {
           <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider">
             Workspace
           </span>
-          <button
-            onClick={triggerUpload}
-            disabled={isUploading}
-            className="p-1 rounded-md hover:bg-white/5 text-accent-primary hover:text-accent-secondary transition-all"
-            title="Upload Document"
-          >
-            <FolderPlus className="w-4.5 h-4.5" />
-          </button>
         </div>
 
         <input
